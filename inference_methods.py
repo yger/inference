@@ -771,6 +771,18 @@ def Jij_estim_wrapper_v1(args):  # this is called for each postsynaptic neuron
     args = (params, ISIs, ISImean, ISImax, mu_estim, sigma_estim)
     lval, logl_uncoupled, pISI_times, pISI0_vals = calc_spiketrain_likelihood(args)
     
+    # plot what's happening
+    isicount,isiedges = np.histogram(ISIs,bins=30)
+    d_edge = isiedges[1]-isiedges[0]
+    isicount = (isicount/float(np.max(isicount))) * np.max(pISI0_vals)
+    plt.figure(figsize=(5,3))
+    plt.bar(isiedges[:-1],isicount,label='ISI histogram',width=d_edge)
+    plt.xlabel('ISI')
+    plt.plot(pISI_times,pISI0_vals,c=[1,0.6,0],label='pISI')
+    plt.xlabel('ISI')
+    plt.ylabel('ISI probability density')
+    
+    
     # 2) calculate ISI density corrections (pISI1) for generic perturbation 
     # times (t_pert): N_tpert time values in [0, t_pert_max], where 
     # t_pert_max > ISI0mean and pISI0[t_pert_max] == epsilon (e.g. 1e-3)  
@@ -790,12 +802,19 @@ def Jij_estim_wrapper_v1(args):  # this is called for each postsynaptic neuron
         t_pert_max = pISI_times[-1]-5.0
     
     t_pert_vals = np.linspace(0.0, t_pert_max, num=N_tpert)
+    print('t_pert_max:',t_pert_max)
     d_tp = t_pert_vals[1]-t_pert_vals[0]
     
     params['t_grid'] = np.arange(0, ISImax, params['fvm_dt'])
     pISI0, pISI1 = pISI0pISI1_deltaperts_fvm_sg(mu_estim, t_pert_vals, 
                                                 sigma_estim, params)
-
+    
+    # plot what pISI1 looks like
+    #plt.plot(pISI_times,pISI1[1,:],c=[0,1,0.6],label='ISI1')
+    plt.legend()
+    plt.savefig('pISI_overlay_dist_neuron'+str(i_N)+'.pdf',pad_inches=0,bbox_inches='tight')
+    plt.show()
+    
     # the transient peak in pISI1 following t_pert is correct but causes problems 
     # for the estimation of inhibitory connections (that are not very weak) unless
     # we use vanishingly small time steps for the finite volume method; 
