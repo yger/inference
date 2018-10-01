@@ -135,10 +135,10 @@ def if_network(params,case='exponential',adapt=False,syn='current',synname=None)
         # synapses
         Se = Synapses(G[:N_e], G, 'we: volt', on_pre='ge += we')
         Si = Synapses(G[N_e:], G, 'wi: volt', on_pre='gi += wi')
-        Se.connect('i!=j', p=pe)
-        Si.connect('i+N_e!=j', p=pi)
+        
         if synname is None:
-            
+            Se.connect('i!=j', p=pe)
+            Si.connect('i+N_e!=j', p=pi)
             Se.we = "we_init*mV*rand()" # random excitatory synaptic weight (voltage)
             Si.wi = "wi_init*mV*rand()" # random inhibitory synaptic weight
         else:
@@ -146,8 +146,8 @@ def if_network(params,case='exponential',adapt=False,syn='current',synname=None)
             synapses = pd.read_pickle(synname)
             
             # connect
-            #Se = Synapses(G[synapses['ex_i'][0]],G[synapses['ex_j'][0]],'we:volt',on_pre='ge +=we')
-            #Si = Synapses(G[synapses['inh_i'][0]],G[synapses['inh_j'][0]],'wi:volt',on_pre='gi +=wi')
+            Se.connect(i=synapses['ex_i'][0], j=synapses['ex_j'][0])
+            Si.connect(i=synapses['in_i'][0], j=synapses['in_j'][0])
             Se.we = synapses['ex_we'][0]*mV
             Si.wi = synapses['inh_wi'][0]*mV
             
