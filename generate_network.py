@@ -147,7 +147,7 @@ def if_network(params,case='exponential',adapt=False,syn='current',synname=None)
             
             # connect
             Se.connect(i=synapses['ex_i'][0], j=synapses['ex_j'][0])
-            Si.connect(i=synapses['in_i'][0], j=synapses['in_j'][0])
+            Si.connect(i=synapses['inh_i'][0], j=synapses['inh_j'][0])
             Se.we = synapses['ex_we'][0]*mV
             Si.wi = synapses['inh_wi'][0]*mV
             
